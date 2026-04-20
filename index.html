@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SubKiller — Stop Wasting Money</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0f;
+  --surface:#13131a;
+  --surface2:#1c1c27;
+  --border:#2a2a3a;
+  --accent:#ff3b5c;
+  --accent2:#7c3aed;
+  --green:#10d97a;
+  --amber:#f59e0b;
+  --text:#f0f0f8;
+  --muted:#6b6b8a;
+  --card:#16161f;
+}
+html,body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;min-height:100vh}
+.app{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;position:relative}
+
+/* NAV */
+.nav{display:flex;justify-content:space-between;align-items:center;padding:20px 20px 0}
+.nav-logo{font-size:15px;font-weight:700;letter-spacing:-0.5px}
+.nav-logo span{color:var(--accent)}
+.nav-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--accent2),var(--accent));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+
+/* SCREENS */
+.screen{display:none;flex-direction:column;flex:1;animation:fadeIn .25s ease}
+.screen.active{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ONBOARDING */
+.onboard{padding:40px 24px;display:flex;flex-direction:column;flex:1}
+.onboard-tag{font-size:11px;font-weight:600;letter-spacing:2px;color:var(--accent);text-transform:uppercase;margin-bottom:16px}
+.onboard-h1{font-size:32px;font-weight:700;line-height:1.15;letter-spacing:-1px;margin-bottom:12px}
+.onboard-h1 em{font-style:normal;color:var(--accent)}
+.onboard-sub{font-size:15px;color:var(--muted);line-height:1.6;margin-bottom:36px}
+.connect-cards{display:flex;flex-direction:column;gap:12px;margin-bottom:32px}
+.connect-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px 20px;display:flex;align-items:center;gap:16px;cursor:pointer;transition:border-color .2s,background .2s}
+.connect-card:hover{border-color:var(--accent);background:var(--surface2)}
+.connect-card.selected{border-color:var(--accent);background:#ff3b5c12}
+.cc-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.cc-gmail{background:#fde8ec}
+.cc-bank{background:#e8f5e9}
+.cc-csv{background:#ede7f6}
+.cc-info h3{font-size:15px;font-weight:600;margin-bottom:2px;color:var(--text)}
+.cc-info p{font-size:12px;color:var(--muted)}
+.cc-check{margin-left:auto;width:22px;height:22px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.connect-card.selected .cc-check{background:var(--accent);border-color:var(--accent)}
+.connect-card.selected .cc-check::after{content:"✓";font-size:12px;color:#fff;font-weight:700}
+.btn-primary{background:var(--accent);color:#fff;border:none;border-radius:14px;padding:16px;font-size:16px;font-weight:700;font-family:'Space Grotesk',sans-serif;cursor:pointer;width:100%;letter-spacing:-0.3px;transition:opacity .2s,transform .1s}
+.btn-primary:hover{opacity:.9}
+.btn-primary:active{transform:scale(.98)}
+.btn-primary:disabled{opacity:.4;cursor:default}
+.skip{text-align:center;margin-top:14px;font-size:13px;color:var(--muted);cursor:pointer;text-decoration:underline}
+
+/* SCANNING */
+.scan-screen{padding:40px 24px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;text-align:center}
+.scan-ring{width:100px;height:100px;border-radius:50%;border:3px solid var(--border);border-top-color:var(--accent);animation:spin 1s linear infinite;margin:0 auto 28px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.scan-title{font-size:22px;font-weight:700;letter-spacing:-0.5px;margin-bottom:10px}
+.scan-sub{font-size:14px;color:var(--muted);margin-bottom:28px}
+.scan-log{width:100%;background:var(--surface);border-radius:14px;padding:16px;font-family:'DM Mono',monospace;font-size:12px;color:var(--green);text-align:left;min-height:120px;line-height:1.9}
+@keyframes appear{to{opacity:1}}
+
+/* DASHBOARD */
+.dash{padding:24px 20px;display:flex;flex-direction:column;gap:20px;flex:1;overflow-y:auto;padding-bottom:90px}
+.section-label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:12px}
+.hero-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:24px;position:relative;overflow:hidden}
+.hero-card::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,#ff3b5c22 0%,transparent 70%)}
+.hero-label{font-size:12px;color:var(--muted);margin-bottom:6px}
+.hero-amount{font-size:42px;font-weight:700;letter-spacing:-2px;line-height:1}
+.hero-amount sup{font-size:20px;vertical-align:top;margin-top:8px;font-weight:400}
+.hero-sub{font-size:13px;color:var(--muted);margin-top:8px}
+.hero-sub strong{color:var(--accent)}
+.hero-pills{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.pill{font-size:11px;font-weight:600;padding:5px 12px;border-radius:20px}
+.pill-red{background:#ff3b5c18;color:var(--accent)}
+.pill-green{background:#10d97a18;color:var(--green)}
+.pill-amber{background:#f59e0b18;color:var(--amber)}
+.sub-list{display:flex;flex-direction:column;gap:10px}
+.sub-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:border-color .2s}
+.sub-card:hover{border-color:var(--accent2)}
+.sub-card.unused{border-color:#f59e0b44}
+.sub-card.cancelled{opacity:.45}
+.sub-logo{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.sub-info{flex:1;min-width:0}
+.sub-name{font-size:15px;font-weight:600;margin-bottom:2px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.unused-dot{width:6px;height:6px;border-radius:50%;background:var(--amber);display:inline-block;flex-shrink:0}
+.sub-meta{font-size:12px;color:var(--muted)}
+.sub-right{text-align:right;flex-shrink:0}
+.sub-amount{font-size:16px;font-weight:700;font-family:'DM Mono',monospace}
+.sub-amount small{display:block;font-size:11px;font-weight:400;color:var(--muted);font-family:'Space Grotesk',sans-serif}
+.cancelled-badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;background:#10d97a18;color:var(--green)}
+
+/* ALERT */
+.alert-list{display:flex;flex-direction:column;gap:10px}
+.alert-card{background:var(--card);border-radius:14px;padding:14px 16px;display:flex;align-items:flex-start;gap:12px;border-left:3px solid var(--accent)}
+.alert-card.info{border-left-color:var(--accent2)}
+.alert-card.warn{border-left-color:var(--amber)}
+.alert-card.ok{border-left-color:var(--green)}
+.alert-icon{font-size:18px;width:22px;text-align:center;flex-shrink:0;margin-top:1px}
+.alert-text{flex:1;font-size:13px;line-height:1.5}
+.alert-text strong{display:block;font-weight:600;margin-bottom:2px;color:var(--text)}
+.alert-text span{color:var(--muted)}
+
+/* DETAIL SHEET */
+.sheet-overlay{display:none;position:fixed;inset:0;background:#00000088;z-index:100}
+.sheet-overlay.open{display:block}
+.sheet{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--surface);border-radius:24px 24px 0 0;padding:28px 24px 40px;z-index:101;animation:slideUp .28s cubic-bezier(.2,.8,.3,1)}
+@keyframes slideUp{from{transform:translateX(-50%) translateY(100%)}to{transform:translateX(-50%) translateY(0)}}
+.sheet-handle{width:40px;height:4px;border-radius:2px;background:var(--border);margin:0 auto 24px}
+.sheet-logo{width:56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:16px}
+.sheet-name{font-size:24px;font-weight:700;letter-spacing:-0.5px;margin-bottom:4px}
+.sheet-cat{font-size:13px;color:var(--muted);margin-bottom:24px}
+.sheet-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
+.stat-box{background:var(--surface2);border-radius:14px;padding:16px}
+.stat-label{font-size:11px;color:var(--muted);margin-bottom:6px}
+.stat-val{font-size:20px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text)}
+.sheet-warn{background:#f59e0b14;border:1px solid #f59e0b44;border-radius:12px;padding:14px 16px;font-size:13px;color:var(--amber);margin-bottom:20px;line-height:1.6}
+.btn-cancel-sub{background:transparent;border:1.5px solid var(--accent);color:var(--accent);border-radius:14px;padding:15px;font-size:15px;font-weight:700;font-family:'Space Grotesk',sans-serif;cursor:pointer;width:100%;letter-spacing:-0.3px;transition:all .2s;margin-bottom:10px}
+.btn-cancel-sub:hover{background:var(--accent);color:#fff}
+.btn-keep{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:14px;padding:14px;font-size:14px;font-weight:500;font-family:'Space Grotesk',sans-serif;cursor:pointer;width:100%;transition:all .2s}
+.btn-keep:hover{border-color:var(--text);color:var(--text)}
+.sheet-cancelled{text-align:center;padding:20px 0;font-size:15px;color:var(--green);font-weight:600}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--surface);border-top:1px solid var(--border);display:none;z-index:50;padding:10px 0 16px}
+.bottom-nav.visible{display:flex}
+.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:6px 0;font-size:10px;font-weight:500;color:var(--muted);transition:color .2s}
+.bn-item.active{color:var(--accent)}
+.bn-icon{font-size:20px;line-height:1}
+
+/* SETTINGS */
+.setting-row{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.setting-label{font-size:14px;font-weight:500;color:var(--text)}
+.setting-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.toggle{width:44px;height:26px;border-radius:13px;background:var(--border);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.toggle.on{background:var(--green)}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .2s}
+.toggle.on::after{left:21px}
+
+.connected-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:5px}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- SCREEN: Onboarding -->
+<div class="screen active" id="s-onboard">
+  <div class="nav"><div class="nav-logo">sub<span>killer</span></div></div>
+  <div class="onboard">
+    <div class="onboard-tag">Stop wasting money</div>
+    <div class="onboard-h1">Find every <em>hidden</em> subscription, instantly.</div>
+    <div class="onboard-sub">Connect your email or bank and we'll scan for recurring payments, flag unused services, and alert you before renewals hit.</div>
+    <div class="connect-cards">
+      <div class="connect-card" id="cc-gmail" onclick="selectConnect('gmail')">
+        <div class="cc-icon cc-gmail"></div>
+        <div class="cc-info"><h3>Connect Gmail</h3><p>Scan receipts & renewal emails</p></div>
+        <div class="cc-check" id="chk-gmail"></div>
+      </div>
+      <div class="connect-card" id="cc-bank" onclick="selectConnect('bank')">
+        <div class="cc-icon cc-bank"></div>
+        <div class="cc-info"><h3>Link bank account</h3><p>Detect recurring charges via Plaid</p></div>
+        <div class="cc-check" id="chk-bank"></div>
+      </div>
+      <div class="connect-card" id="cc-csv" onclick="selectConnect('csv')">
+        <div class="cc-icon cc-csv"></div>
+        <div class="cc-info"><h3>Upload CSV</h3><p>Export from your bank & drop it here</p></div>
+        <div class="cc-check" id="chk-csv"></div>
+      </div>
+    </div>
+    <button class="btn-primary" id="scan-btn" disabled onclick="startScan()">Scan for subscriptions</button>
+    <div class="skip" onclick="skipToApp()">Skip — show me the demo</div>
+  </div>
+</div>
+
+<!-- SCREEN: Scanning -->
+<div class="screen" id="s-scan">
+  <div class="scan-screen">
+    <div class="scan-ring"></div>
+    <div class="scan-title">Scanning your accounts…</div>
+    <div class="scan-sub">This usually takes 10–20 seconds</div>
+    <div class="scan-log" id="scan-log"></div>
+  </div>
+</div>
+
+<!-- SCREEN: Dashboard -->
+<div class="screen" id="s-dash">
+  <div class="nav"><div class="nav-logo">sub<span>killer</span></div><div class="nav-avatar">JD</div></div>
+  <div class="dash">
+    <div class="hero-card">
+      <div class="hero-label">Monthly subscription spend</div>
+      <div class="hero-amount"><sup>$</sup><span id="total-spend">127</span><span style="font-size:18px;color:var(--muted)">.43</span></div>
+      <div class="hero-sub" id="hero-sub-text">That's <strong>$1,529.16/yr</strong> — across 9 services</div>
+      <div class="hero-pills">
+        <div class="pill pill-red" id="pill-unused">3 unused flagged</div>
+        <div class="pill pill-amber">2 renewing soon</div>
+        <div class="pill pill-green" id="pill-save">$61.97 saveable</div>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">All subscriptions</div>
+      <div class="sub-list" id="sub-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN: Alerts -->
+<div class="screen" id="s-alerts">
+  <div style="padding:24px 20px 0">
+    <div style="font-size:18px;font-weight:700;letter-spacing:-0.5px;margin-bottom:4px">Alerts</div>
+    <div style="font-size:13px;color:var(--muted)">Upcoming renewals & flagged services</div>
+  </div>
+  <div style="padding:20px;display:flex;flex-direction:column;gap:16px;padding-bottom:90px;overflow-y:auto">
+    <div class="section-label">Renewing soon</div>
+    <div class="alert-list">
+      <div class="alert-card">
+        <div class="alert-icon">⚡</div>
+        <div class="alert-text"><strong>Netflix renews in 3 days</strong><span>$15.99 will be charged on Apr 22</span></div>
+      </div>
+      <div class="alert-card warn">
+        <div class="alert-icon">⏰</div>
+        <div class="alert-text"><strong>Adobe Creative Cloud in 6 days</strong><span>$54.99 — your biggest subscription</span></div>
+      </div>
+    </div>
+    <div class="section-label">Possibly unused</div>
+    <div class="alert-list">
+      <div class="alert-card info">
+        <div class="alert-icon">💤</div>
+        <div class="alert-text"><strong>Duolingo Plus — no activity 63 days</strong><span>$6.99/mo · cancel to save $83.88/yr</span></div>
+      </div>
+      <div class="alert-card info">
+        <div class="alert-icon">💤</div>
+        <div class="alert-text"><strong>Calm — no activity 45 days</strong><span>$14.99/mo · cancel to save $179.88/yr</span></div>
+      </div>
+      <div class="alert-card info">
+        <div class="alert-icon">💤</div>
+        <div class="alert-text"><strong>LinkedIn Premium — no activity 30 days</strong><span>$39.99/mo · consider pausing</span></div>
+      </div>
+    </div>
+    <div class="section-label">All clear</div>
+    <div class="alert-list">
+      <div class="alert-card ok">
+        <div class="alert-icon">✅</div>
+        <div class="alert-text"><strong>6 services look healthy</strong><span>Active usage detected in the last 14 days</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN: Settings -->
+<div class="screen" id="s-settings">
+  <div style="padding:24px 20px 0;margin-bottom:4px">
+    <div style="font-size:18px;font-weight:700;letter-spacing:-0.5px;margin-bottom:4px">Settings</div>
+    <div style="font-size:13px;color:var(--muted)">Manage alerts & connected accounts</div>
+  </div>
+  <div style="padding:20px;display:flex;flex-direction:column;gap:12px;padding-bottom:90px;overflow-y:auto">
+    <div class="section-label">Notifications</div>
+    <div class="setting-row">
+      <div><div class="setting-label">Renewal alerts</div><div class="setting-sub">3 days before each charge</div></div>
+      <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+    </div>
+    <div class="setting-row">
+      <div><div class="setting-label">Unused service alerts</div><div class="setting-sub">After 30 days of inactivity</div></div>
+      <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+    </div>
+    <div class="setting-row">
+      <div><div class="setting-label">Weekly spend summary</div><div class="setting-sub">Every Monday morning</div></div>
+      <div class="toggle" onclick="this.classList.toggle('on')"></div>
+    </div>
+    <div class="section-label" style="margin-top:8px">Connected accounts</div>
+    <div class="setting-row">
+      <div><div class="setting-label"><span class="connected-dot"></span>Gmail</div><div class="setting-sub">johndoe@gmail.com</div></div>
+      <div style="font-size:12px;color:var(--accent);cursor:pointer;font-weight:600">Disconnect</div>
+    </div>
+    <div class="setting-row">
+      <div><div class="setting-label"><span class="connected-dot"></span>Chase Bank</div><div class="setting-sub">Checking ···4821</div></div>
+      <div style="font-size:12px;color:var(--accent);cursor:pointer;font-weight:600">Disconnect</div>
+    </div>
+    <div class="section-label" style="margin-top:8px">Account</div>
+    <div class="setting-row" style="cursor:pointer">
+      <div><div class="setting-label">Export my data</div><div class="setting-sub">Download a CSV of all subscriptions</div></div>
+      <div style="color:var(--muted);font-size:16px">→</div>
+    </div>
+    <div class="setting-row" style="cursor:pointer">
+      <div><div class="setting-label" style="color:var(--accent)">Delete account</div><div class="setting-sub">Remove all data permanently</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom Nav -->
+<div class="bottom-nav" id="bottom-nav">
+  <div class="bn-item active" id="bn-dash" onclick="showTab('dash')">
+    <div class="bn-icon">📊</div>Dashboard
+  </div>
+  <div class="bn-item" id="bn-alerts" onclick="showTab('alerts')">
+    <div class="bn-icon">🔔</div>Alerts
+  </div>
+  <div class="bn-item" id="bn-settings" onclick="showTab('settings')">
+    <div class="bn-icon">⚙️</div>Settings
+  </div>
+</div>
+
+<!-- Sheet overlay -->
+<div class="sheet-overlay" id="sheet-overlay" onclick="closeSheet()"></div>
+<div class="sheet" id="sheet" style="display:none">
+  <div class="sheet-handle"></div>
+  <div class="sheet-logo" id="sh-logo"></div>
+  <div class="sheet-name" id="sh-name"></div>
+  <div class="sheet-cat" id="sh-cat"></div>
+  <div class="sheet-stats">
+    <div class="stat-box"><div class="stat-label">Monthly cost</div><div class="stat-val" id="sh-monthly"></div></div>
+    <div class="stat-box"><div class="stat-label">Annual cost</div><div class="stat-val" id="sh-annual"></div></div>
+    <div class="stat-box"><div class="stat-label">Next renewal</div><div class="stat-val" id="sh-renewal"></div></div>
+    <div class="stat-box"><div class="stat-label">Last used</div><div class="stat-val" id="sh-used"></div></div>
+  </div>
+  <div class="sheet-warn" id="sh-warn" style="display:none"></div>
+  <div id="sh-actions"></div>
+</div>
+
+<script>
+const subs = [
+  {id:0,name:'Netflix',icon:'🎬',color:'#e50914',bg:'#fde8ec',cat:'Streaming',monthly:15.99,renewal:'Apr 22',used:'Today',unused:false,cancelUrl:'https://netflix.com/cancel'},
+  {id:1,name:'Spotify',icon:'🎵',color:'#1db954',bg:'#e8f5e9',cat:'Music',monthly:9.99,renewal:'May 1',used:'Yesterday',unused:false,cancelUrl:'https://spotify.com/account'},
+  {id:2,name:'Adobe CC',icon:'🎨',color:'#ff0000',bg:'#fde8ec',cat:'Creative',monthly:54.99,renewal:'Apr 25',used:'3 days ago',unused:false,cancelUrl:'https://account.adobe.com'},
+  {id:3,name:'Duolingo Plus',icon:'🦉',color:'#58cc02',bg:'#e8f5e9',cat:'Education',monthly:6.99,renewal:'May 5',used:'63 days ago',unused:true,cancelUrl:'https://duolingo.com/settings'},
+  {id:4,name:'Calm',icon:'🧘',color:'#6c63ff',bg:'#ede7f6',cat:'Wellness',monthly:14.99,renewal:'May 10',used:'45 days ago',unused:true,cancelUrl:'https://calm.com/account'},
+  {id:5,name:'LinkedIn Premium',icon:'💼',color:'#0077b5',bg:'#e3f2fd',cat:'Professional',monthly:39.99,renewal:'May 15',used:'30 days ago',unused:true,cancelUrl:'https://linkedin.com/premium'},
+  {id:6,name:'iCloud+',icon:'☁️',color:'#6e6e73',bg:'#f5f5f7',cat:'Storage',monthly:2.99,renewal:'May 3',used:'Today',unused:false,cancelUrl:'https://appleid.apple.com'},
+  {id:7,name:'YouTube Premium',icon:'▶️',color:'#ff0000',bg:'#fde8ec',cat:'Streaming',monthly:13.99,renewal:'Apr 28',used:'2 days ago',unused:false,cancelUrl:'https://youtube.com/paid_memberships'},
+  {id:8,name:'GitHub Pro',icon:'🐙',color:'#24292e',bg:'#f0f0f0',cat:'Dev Tools',monthly:4.00,renewal:'May 7',used:'Today',unused:false,cancelUrl:'https://github.com/settings/billing'},
+];
+
+const cancelled = new Set();
+let selectedConnect = null;
+let currentSub = null;
+
+function selectConnect(type) {
+  if (selectedConnect === type) {
+    selectedConnect = null;
+    document.getElementById('cc-' + type).classList.remove('selected');
+  } else {
+    if (selectedConnect) document.getElementById('cc-' + selectedConnect).classList.remove('selected');
+    selectedConnect = type;
+    document.getElementById('cc-' + type).classList.add('selected');
+  }
+  document.getElementById('scan-btn').disabled = !selectedConnect;
+}
+
+const scanLines = [
+  '> Authenticating…',
+  '> Fetching last 12 months of data…',
+  '> Found Netflix ($15.99/mo) ✓',
+  '> Found Spotify ($9.99/mo) ✓',
+  '> Found Adobe CC ($54.99/mo) ✓',
+  '> Found Duolingo Plus ($6.99/mo) ✓',
+  '> Found Calm ($14.99/mo) ✓',
+  '> Found LinkedIn Premium ($39.99/mo) ✓',
+  '> Found iCloud+ ($2.99/mo) ✓',
+  '> Found YouTube Premium ($13.99/mo) ✓',
+  '> Found GitHub Pro ($4.00/mo) ✓',
+  '> Analyzing usage patterns…',
+  '> Flagging 3 unused services…',
+  '> Done. 9 subscriptions found.',
+];
+
+function startScan() {
+  showScreen('s-scan');
+  const log = document.getElementById('scan-log');
+  log.innerHTML = '';
+  let i = 0;
+  function addLine() {
+    if (i >= scanLines.length) {
+      setTimeout(() => { showApp(); }, 600);
+      return;
+    }
+    const div = document.createElement('div');
+    div.textContent = scanLines[i];
+    div.style.opacity = '0';
+    div.style.transition = 'opacity .3s';
+    log.appendChild(div);
+    setTimeout(() => { div.style.opacity = '1'; }, 30);
+    log.scrollTop = log.scrollHeight;
+    i++;
+    setTimeout(addLine, i < 3 ? 500 : 250);
+  }
+  addLine();
+}
+
+function skipToApp() { showApp(); }
+
+function showApp() {
+  renderSubList();
+  showScreen('s-dash');
+  document.getElementById('bottom-nav').classList.add('visible');
+  showTab('dash');
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function showTab(tab) {
+  ['dash','alerts','settings'].forEach(t => {
+    document.getElementById('bn-' + t).classList.toggle('active', t === tab);
+  });
+  showScreen('s-' + tab);
+}
+
+function renderSubList() {
+  const list = document.getElementById('sub-list');
+  list.innerHTML = '';
+  subs.forEach(s => {
+    const isCancelled = cancelled.has(s.id);
+    const card = document.createElement('div');
+    card.className = 'sub-card' + (s.unused && !isCancelled ? ' unused' : '') + (isCancelled ? ' cancelled' : '');
+    card.onclick = () => openSheet(s.id);
+    card.innerHTML = `
+      <div class="sub-logo" style="background:${s.bg}">${s.icon}</div>
+      <div class="sub-info">
+        <div class="sub-name">
+          ${s.unused && !isCancelled ? '<span class="unused-dot"></span>' : ''}
+          ${s.name}
+          ${isCancelled ? '<span class="cancelled-badge">Cancelled</span>' : ''}
+        </div>
+        <div class="sub-meta">${s.cat} · renews ${s.renewal}</div>
+      </div>
+      <div class="sub-right">
+        <div class="sub-amount">$${s.monthly.toFixed(2)}<small>/mo</small></div>
+      </div>`;
+    list.appendChild(card);
+  });
+  updateHero();
+}
+
+function updateHero() {
+  const active = subs.filter(s => !cancelled.has(s.id));
+  const total = active.reduce((a, s) => a + s.monthly, 0);
+  const saveable = subs.filter(s => s.unused && !cancelled.has(s.id)).reduce((a, s) => a + s.monthly, 0);
+  const unusedCount = subs.filter(s => s.unused && !cancelled.has(s.id)).length;
+  document.getElementById('total-spend').textContent = Math.floor(total);
+  document.getElementById('hero-sub-text').innerHTML = `That's <strong>$${(total * 12).toFixed(2)}/yr</strong> — across ${active.length} services`;
+  document.getElementById('pill-unused').textContent = unusedCount + ' unused flagged';
+  document.getElementById('pill-save').textContent = '$' + saveable.toFixed(2) + ' saveable';
+}
+
+function openSheet(id) {
+  currentSub = subs[id];
+  const s = currentSub;
+  const isCancelled = cancelled.has(s.id);
+  document.getElementById('sh-logo').style.background = s.bg;
+  document.getElementById('sh-logo').textContent = s.icon;
+  document.getElementById('sh-name').textContent = s.name;
+  document.getElementById('sh-cat').textContent = s.cat;
+  document.getElementById('sh-monthly').textContent = '$' + s.monthly.toFixed(2);
+  document.getElementById('sh-annual').textContent = '$' + (s.monthly * 12).toFixed(2);
+  document.getElementById('sh-renewal').textContent = s.renewal;
+  document.getElementById('sh-used').textContent = s.used;
+  const warn = document.getElementById('sh-warn');
+  if (s.unused && !isCancelled) {
+    warn.style.display = 'block';
+    warn.textContent = '⚠️  You haven\'t used ' + s.name + ' in a while. Cancelling would save you $' + (s.monthly * 12).toFixed(2) + ' per year.';
+  } else {
+    warn.style.display = 'none';
+  }
+  const actions = document.getElementById('sh-actions');
+  if (isCancelled) {
+    actions.innerHTML = '<div class="sheet-cancelled">✅ Cancelled — no more charges</div>';
+  } else {
+    actions.innerHTML = `
+      <button class="btn-cancel-sub" onclick="cancelSub(${s.id})">Cancel ${s.name}</button>
+      <button class="btn-keep" onclick="closeSheet()">Keep subscription</button>`;
+  }
+  document.getElementById('sheet').style.display = 'block';
+  document.getElementById('sheet-overlay').classList.add('open');
+}
+
+function closeSheet() {
+  document.getElementById('sheet').style.display = 'none';
+  document.getElementById('sheet-overlay').classList.remove('open');
+}
+
+function cancelSub(id) {
+  cancelled.add(id);
+  const s = subs[id];
+  const actions = document.getElementById('sh-actions');
+  actions.innerHTML = '<div class="sheet-cancelled">✅ ' + s.name + ' marked as cancelled</div>';
+  document.getElementById('sh-warn').style.display = 'none';
+  renderSubList();
+  setTimeout(closeSheet, 1400);
+}
+</script>
+</body>
+</html>
